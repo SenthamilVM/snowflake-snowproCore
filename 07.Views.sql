@@ -1,0 +1,95 @@
+USE DATABASE LA_DB;
+
+USE SCHEMA LA_SCHEMA;
+
+-- Create a view
+CREATE OR REPLACE VIEW CUSTOMER_VIEW AS
+SELECT CUSTOMER_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE, ADDRESS, CITY, STATE, COUNTRY, JOIN_DATE
+FROM CUSTOMER;
+
+SELECT * FROM CUSTOMER_VIEW;
+
+CREATE OR REPLACE VIEW CUSTOMER_LOCATION_VIEW AS
+SELECT CUSTOMER_ID, CONCAT(ADDRESS, ', ', CITY, ', ', STATE, ', ', COUNTRY) AS LOCATION
+FROM CUSTOMER;
+
+-- CREATE MATERIALIZED VIEW CALLED CUSTOMER_LOCATION_MV
+CREATE OR REPLACE MATERIALIZED VIEW CUSTOMER_LOCATION_MV AS
+SELECT CUSTOMER_ID, CONCAT(ADDRESS, ', ', CITY, ', ', STATE, ', ', COUNTRY) AS LOCATION
+FROM CUSTOMER
+WHERE STATE = 'CA';
+
+SELECT * FROM CUSTOMER_LOCATION_MV;
+
+USE ROLE ACCOUNTADMIN;
+-- Create a secure materialized view called CUSTOMER_LOCATION_MV_S
+CREATE OR REPLACE SECURE MATERIALIZED VIEW CUSTOMER_LOCATION_MV_S AS
+SELECT CUSTOMER_ID, CONCAT(ADDRESS, ', ', CITY, ', ', STATE, ', ', COUNTRY) AS LOCATION
+FROM CUSTOMER
+WHERE STATE = 'CA';
+
+-- Display all views
+SHOW VIEWS;
+
+SELECT * FROM CUSTOMER_LOCATION_MV_S;
+
+-- Grant relevant access on DB to User admin
+GRANT USAGE ON DATABASE LA_DB TO USERADMIN;
+-- Grant relevant access on schema
+GRANT USAGE ON SCHEMA LA_SCHEMA TO USERADMIN;
+
+-- Grant select access on views
+GRANT SELECT ON VIEW CUSTOMER_LOCATION_MV TO USERADMIN;
+GRANT SELECT ON VIEW CUSTOMER_LOCATION_MV_S TO USERADMIN;
+
+-- Grant warehouse usage to the role.
+GRANT USAGE ON WAREHOUSE COMPUTE_WH TO USERADMIN;
+
+-- Change role and check for the neccessary access
+USE ROLE USERADMIN;
+
+-- SELECT should work because of the select grant above
+SELECT * FROM CUSTOMER_LOCATION_MV;
+SELECT * FROM CUSTOMER_LOCATION_MV_S;
+
+-- DDL definition will not be shown for the secured view and that's the important role of secure view.
+-- Even if the user has SELECT Grant, they will not be able to see the definition behind the code. This will avoid the code to be visible to the user who has just SELECT Grant.
+
+-- Get DDL code
+SELECT get_ddl('view', 'CUSTOMER_LOCATION_MV_S');
+SELECT get_ddl('view', 'CUSTOMER_LOCATION_MV');
+
+SHOW VIEWS;
+
+-- SELECT CURRENT_ROLE();
+
+-- USE ROLE USERADMIN;
+
+-- REVOKE SELECT ON VIEW CUSTOMER_LOCATION_MV_S FROM USERADMIN;
+
+-- SELECT * FROM CUSTOMER_LOCATION_MV_S;
+
+-- SHOW GRANTS ON VIEW CUSTOMER_LOCATION_MV_S;
+
+-- REVOKE ALL PRIVILEGES ON VIEW CUSTOMER_LOCATION_MV_S FROM USERADMIN;
+
+-- SELECT * FROM CUSTOMER_LOCATION_MV_S;
+
+-- SHOW VIEWS;
+
+-- DROP MATERIALIZED VIEW CUSTOMER_LOCATION_MV_S;
+-- DROP VIEW CUSTOMER_VIEW;
+-- DROP VIEW CUSTOMER_LOCATION_VIEW;
+-- DROP MATERIALIZED VIEW CUSTOMER_LOCATION_MV;
+--------------------------------------------------------------------------------------------------
+--Check why secure materialized view (CUSTOMER_LOCATION_MV_S) is showing ddl. As per the behaviour it should not be shown.
+-------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
