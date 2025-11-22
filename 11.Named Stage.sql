@@ -1,0 +1,52 @@
+USE ROLE ACCOUNTADMIN;
+USE WAREHOUSE COMPUTE_WH;
+USE DATABASE LA_DB;
+USE SCHEMA LA_SCHEMA;
+
+CREATE OR REPLACE TABLE CUSTOMERS_NAMED
+(
+CUSTOMER INT NOT NULL,
+FIRST_NAME VARCHAR(20) NOT NULL,
+LAST_NAME VARCHAR(20) NOT NULL,
+"REGION" VARCHAR(15) NOT NULL, --REGION IS A KEY WORD. Hence used ""
+EMAIL VARCHAR(25) NOT NULL,
+GENDER VARCHAR(10) NOT NULL,
+"ORDER" INT NOT NULL --ORDER IS A KEY WORD. Hence used ""
+);
+
+-- DISPLAY STAGES
+SHOW STAGES;
+
+-- CREATING NAMED STAGE
+CREATE OR REPLACE STAGE INTERNAL_NAMED_STAGE
+FILE_FORMAT = 
+(
+TYPE = 'CSV' FIELD_DELIMITER = ',' SKIP_HEADER = 1
+);
+
+-- METHOD 1: LOAD DATA USING SNOWSQL
+PUT FILE://D:\Senthamil\Learning\Snowflake SnowPro Core Certification\Udemy Resources\Code+and+Data+Files\data\MOCK.csv
+@INTERNAL_NAMED_STAGE AUTO_COMPRESS = FALSE;
+
+PUT FILE://D:\Senthamil\Learning\Snowflake SnowPro Core Certification\Udemy Resources\Code+and+Data+Files\data\MOCK1.csv
+@INTERNAL_NAMED_STAGE AUTO_COMPRESS = FALSE; OVERWRITE = TRUE; --Use overwrite as and when required to overwrite the data
+
+-- MEDTHOD 2: LOAD DATA USING SNOWSIGHT since it's a named stage and the file size is in KB and NOT MORE THAN 250MB
+-- SNOWSQL (METHOD 1) can be used if the file size is MORE THAN 250MB
+list @INTERNAL_NAMED_STAGE;
+
+-- Customers_Named table doesn't have any data yet
+SELECT * FROM CUSTOMERS_NAMED;
+
+-- Load data from stage to the table
+COPY INTO CUSTOMERS_NAMED
+FROM @INTERNAL_NAMED_STAGE
+FILE_FORMAT = (TYPE = 'CSV' SKIP_HEADER = 1) PURGE = TRUE;
+
+-- Changed VARCHAR length since it was throwing error for EMAIL character.
+-- ALTER TABLE CUSTOMERS_NAMED
+-- MODIFY EMAIL VARCHAR(100);
+
+-- Display data in CUSTOMERS_NAMED table after loading data from INTERNAL_CUSTOMER_NAMED stage
+SELECT * FROM CUSTOMERS_NAMED;
+SELECT COUNT(*) FROM CUSTOMERS_NAMED;
