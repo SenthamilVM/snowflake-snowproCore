@@ -2,7 +2,10 @@
 USE DATABASE LA_DB;
 USE SCHEMA LA_SCHEMA;
 
--- Create customer table
+-- USE WAREHOUSE
+USE WAREHOUSE COMPUTE_WH;
+
+-- SET TIMEZONE TO UTC
 ALTER SESSION SET TIMEZONE = 'UTC';
 
 -- Create customer table
@@ -38,41 +41,40 @@ VALUES
   (9, 'Samuel', 'Martinez', 'samuelmartinez@example.com', '+1-555-3456', '246 Oak St', 'Anyville', 'TX', 'USA', '2022-01-09'),
   (10, 'Karen', 'Chen', 'karenchen@example.com', '+1-555-7890', '852 Pine St', 'Anytown', 'CA', 'USA', '2022-01-10');
 
-  SELECT * FROM CUSTOMER;
+-- CHECK THE INSERTED DATA
+SELECT * FROM CUSTOMER;
 
 -- This command shows the current timezone used by the session
-  SHOW PARAMETERS LIKE 'TIMEZONE';
+SHOW PARAMETERS LIKE 'TIMEZONE';
 
-  -- This command retrieves the current timestamp in the UTC timezone
-  SELECT SYSTIMESTAMP();
+-- This command retrieves the current timestamp in the UTC timezone
+SELECT SYSTIMESTAMP();
+-- Timestamp : 2026-03-23 18:19:43.434 +0000
 
-  -- Timestamp : 2025-10-31 08:37:20.990 +0000
+-- Change the phone number for Customer ID 1
+UPDATE CUSTOMER SET PHONE = '+4-555-1234' WHERE CUSTOMER_ID = 1;
 
-  -- Change the phone number for Customer ID 1
-  UPDATE CUSTOMER SET PHONE = '+3-555-5678'
-  WHERE CUSTOMER_ID = 1;
+-- Query ID: 01c339b2-0308-31e4-0000-002601dfd72d
 
-  -- Query ID : 01c01350-0306-d77a-0015-ace30001b70a
+-- View the current state of customer table
+SELECT * FROM CUSTOMER;
 
-  -- View the current state of customer table
-  SELECT * FROM CUSTOMER;
+-- View the state of the CUSTOMER table as it existed before updating the phone number
+SELECT * FROM CUSTOMER BEFORE(STATEMENT => '01c339b2-0308-31e4-0000-002601dfd72d');
 
-  -- View the state of the CUSTOMER table as it existed one day ago
-  SELECT * FROM CUSTOMER BEFORE(STATEMENT => '01c01350-0306-d77a-0015-ace30001b70a');
+-- This command selects all records from the customer table as it existed 300 seconds ago
+SELECT * FROM CUSTOMER BEFORE (OFFSET => -300);
 
-  -- This command selects all records from the customer table as it existed 20 seconds ago
-  SELECT * FROM CUSTOMER BEFORE(OFFSET => -20);
+-- This command selects all rows from the CUSTOMER table that were valid before a specific timestamp
+SELECT * FROM CUSTOMER AT (TIMESTAMP => '2026-03-23 18:19:43.434 +0000'::timestamp);
 
-  -- This command selects all rows from the CUSTOMER table that were valid before a specific timestamp
-  SELECT * FROM CUSTOMER AT (TIMESTAMP => '2025-10-31 08:37:20.990 +0000'::timestamp);
+-- Drop the CUSTOMER table
+DROP TABLE CUSTOMER;
 
-  -- Drop the CUSTOMER table
-  DROP TABLE CUSTOMER;
+-- Check if customer table exists
+SELECT * FROM CUSTOMER;
 
-  -- Check if customer table exists
-  SELECT * FROM CUSTOMER;
-
-  -- Undrop customer table
+-- Undrop customer table
 UNDROP TABLE CUSTOMER;
 
 -- Check default data retention days
@@ -82,29 +84,19 @@ SHOW TABLES;
 ALTER ACCOUNT SET MIN_DATA_RETENTION_TIME_IN_DAYS = 10;
 
 -- Check the data retention days now for tables, schemas and databases
-SHOW TABLES;
-SHOW SCHEMAS;
+-- data retention for the db, schema and table should be set to 10 now because of the above statement which is account level
 SHOW DATABASES;
+SHOW SCHEMAS;
+SHOW TABLES;
 
--- You can also do time travel for COPY, Create Schema, Create Database
-CREATE TABLE COPY_CUST CLONE CUSTOMER
-AT(TIMESTAMP => '2025-10-31 08:37:20.990 +0000'::timestamp);
+-- We can also do time travel for COPY, Create Schema, Create Database
+CREATE TABLE CUSTOMER_COPY CLONE CUSTOMER
+AT (TIMESTAMP => '2026-03-23 18:19:43.434 +0000'::timestamp);
+
+SELECT * FROM CUSTOMER_COPY;
 
 -- Similarly, we can do for schema and database. But there are some limitations. Like if it contains transient tables, it wont work
--- CREATE SCHEMA restored_schema CLONE my_schema AT(OFFSET => -3600);
+-- CREATE SCHEMA RESTORED_SCHEMA CLONE LA_SCHEMA AT(OFFSET => -3600);
 
 -- CREATE DATABASE restored_db CLONE my_db
--- BEFORE (STATEMENT => '01c01350-0306-d77a-0015-ace30001b70a');
-
-
-
-
-
-  
-
-  
-
-  
-
-
-
+-- CREATE DATABASE RESTORED_DB CLONE LA_DB BEFORE (STATEMENT => '01c339b2-0308-31e4-0000-002601dfd72d');
