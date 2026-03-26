@@ -1,16 +1,21 @@
+-- INSERT OVERWRITE
+-- This deletes the existing records in the target table before inserting new values
+
+--Use DB and schema
 USE DATABASE LA_DB;
 USE SCHEMA LA_SCHEMA;
 
+--Use role and warehouse
+USE ROLE ACCOUNTADMIN;
+USE WAREHOUSE COMPUTE_WH;
+
 --Create employee table
-CREATE OR REPLACE TABLE EMPLOYEESS
+CREATE OR REPLACE TABLE EMPLOYEES
 (
 ID INT,
 NAME VARCHAR(25),
 DEPARTMENT VARCHAR(35)
 );
-
--- Renaming the table
-ALTER TABLE EMPLOYEESS RENAME TO EMPLOYEES;
 
 INSERT INTO EMPLOYEES (ID, NAME, DEPARTMENT)
 VALUES
@@ -19,8 +24,7 @@ VALUES
 
 -- This will overwrite the existing data in employees table with the new data from the select statement
 INSERT OVERWRITE INTO EMPLOYEES
-SELECT ID, NAME, DEPARTMENT FROM EMPLOYEES
-WHERE DEPARTMENT = 'Engineering';
+SELECT ID, NAME, DEPARTMENT FROM EMPLOYEES WHERE DEPARTMENT = 'Engineering';
 
 SELECT * FROM EMPLOYEES;
 
