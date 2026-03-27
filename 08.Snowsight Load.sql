@@ -1,7 +1,10 @@
-USE ROLE ACCOUNTADMIN;
-USE WAREHOUSE COMPUTE_WH;
+--Use DB and schema
 USE DATABASE LA_DB;
 USE SCHEMA LA_SCHEMA;
+
+--Use role and warehouse
+USE ROLE ACCOUNTADMIN;
+USE WAREHOUSE COMPUTE_WH;
 
 --Create CUSTOMERS table
 CREATE TABLE CUSTOMERS 
@@ -15,9 +18,12 @@ GENDER VARCHAR(10) NOT NULL,
 "ORDER" INT NOT NULL --ORDER IS A KEY WORD. Hence used ""
 );
 
+--Checking the data after loading data from cust_stage to customers table
 SELECT COUNT(*) FROM CUSTOMERS;
 
+
 -- If we try to load Mock.csv (which is already loaded from stage to table) again to CUSTOMERS table from stage, it will load 0 rows.
+
 /*MOCK.csv
 LA_DB.LA_SCHEMA.CUSTOMERS
 0 of 0 rows were successfully inserted into the table.
@@ -25,10 +31,11 @@ File was loaded before.
 */
 --Because stage keeps tracks of the data till 64 days.
 
+
 --The below statement will prove this
 COPY INTO "LA_DB"."LA_SCHEMA"."CUSTOMERS"
 FROM '@"LA_DB"."LA_SCHEMA"."CUST_STAGE"/MOCK.csv'
--- (
+-- FROM (
 --     SELECT $1, $2, $3, $4, $5, $6, $7
 --     FROM '@"LA_DB"."LA_SCHEMA"."CUST_STAGE"'
 -- )
@@ -51,7 +58,7 @@ ON_ERROR=ABORT_STATEMENT;
 -- To Force upload
 COPY INTO "LA_DB"."LA_SCHEMA"."CUSTOMERS"
 FROM '@"LA_DB"."LA_SCHEMA"."CUST_STAGE"/MOCK.csv'
--- (
+-- FROM (
 --     SELECT $1, $2, $3, $4, $5, $6, $7
 --     FROM '@"LA_DB"."LA_SCHEMA"."CUST_STAGE"'
 -- )
@@ -70,5 +77,5 @@ FILE_FORMAT = (
 ON_ERROR=ABORT_STATEMENT
 FORCE = TRUE;
 
---Now 1000 rows from Mock.csv have been added.
+--Now 1000 rows from Mock.csv from cust_stage have been added again (duplicate records)
 SELECT COUNT(*) FROM CUSTOMERS;
