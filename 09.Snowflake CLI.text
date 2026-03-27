@@ -1,0 +1,43 @@
+-- to check if it snowflake CLI is installed
+snow --help 
+
+-- creating connection to snowflake
+snow connection add
+
+--credentials to connect to snowflake
+Enter connection name: my_connection
+Enter account: xxxxxxxxx
+Enter user: xxxxxxxx
+Enter password:
+Enter role: xxxxxxx
+Enter warehouse: COMPUTE_WH
+Enter database: LA_DB
+Enter schema: LA_SCHEMA
+--Optional Fields
+Enter host:
+Enter port:
+Enter region:
+Enter authenticator:
+Enter workload identity provider:
+Enter private key file:
+Enter token file path:
+
+-- to set default connection
+snow connection set -default my_connection
+
+-- some generatl queries
+snow sql --query "select * from LA_DB.LA_SCHEMA.CUSTOMER"
+
+snow object list database
+
+-- Connecting to snowflake from terminal
+snowsql -a <account identifier> -u <user name>
+
+-- it will prompt for the password
+
+--Once it is connected, we can run normal SQL queries
+
+-- Adding a file to the stage using Snowflake CLI
+
+-- put file://<folder path>/MOCK1.csv @internal_named_stage AUTO_COMPRESS = FALSE;
+
