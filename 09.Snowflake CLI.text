@@ -1,3 +1,22 @@
+-- The following has to be executed in SNOWFLAKE CLI
+
+-- Login to snowsql in snowflake CLI
+-- snowsql -a [Account Identifier] -u [User Name]
+
+-- USE DATABASE [DATABASE NAME]
+-- USE SCHEMA [SCHEMA NAME]
+
+-- use role and warehouse if required
+-- USE ROLE ACCOUNTADMIN
+-- USE WAREHOUSE COMPUTE_WH
+
+-- upload file using snowsql
+
+-- Use <folder path> without spaces to avoid errors
+put file://<folder path>\MOCK.csv @named_stage AUTO_COMPRESS = FALSE [OVERWRITE = TRUE];
+
+______________________________________________________________
+
 -- to check if it snowflake CLI is installed
 snow --help 
 
@@ -30,14 +49,5 @@ snow sql --query "select * from LA_DB.LA_SCHEMA.CUSTOMER"
 
 snow object list database
 
--- Connecting to snowflake from terminal
-snowsql -a <account identifier> -u <user name>
 
--- it will prompt for the password
-
---Once it is connected, we can run normal SQL queries
-
--- Adding a file to the stage using Snowflake CLI
-
--- put file://<folder path>/MOCK1.csv @internal_named_stage AUTO_COMPRESS = FALSE;
 
